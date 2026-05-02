@@ -1,20 +1,15 @@
 {
   "name": "evez-vcl-core",
   "version": "1.0.0",
-  "description": "EVEZ VCL Core — Reactive sensory 24/7 generative visualization platform. 5 live streams.",
+  "description": "EVEZ VCL Core — 5 reactive sensory 24/7 live VCLs",
   "main": "src/main.js",
   "type": "module",
   "scripts": {
-    "start": "node src/main.js",
-    "vcl-fire": "VCL_ID=fire node src/main.js",
-    "vcl-ocean": "VCL_ID=ocean node src/main.js",
-    "vcl-neural": "VCL_ID=neural node src/main.js",
-    "vcl-void": "VCL_ID=void node src/main.js",
-    "vcl-prime": "VCL_ID=prime node src/main.js"
+    "start": "node src/main.js"
   },
   "dependencies": {
+    "@napi-rs/canvas": "^0.1.55",
     "@supabase/supabase-js": "^2.45.0",
-    "canvas": "^2.11.2",
     "node-fetch": "^3.3.2"
   }
 }
