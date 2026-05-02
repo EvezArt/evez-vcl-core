@@ -1,4 +1,4 @@
-app = "evez-vcl-fire"
+app = "evez-vcl-core"
 primary_region = "iad"
 
 [build]
@@ -7,7 +7,21 @@ primary_region = "iad"
 [env]
   NODE_ENV = "production"
 
+[processes]
+  vcl_fire  = "node src/main.js"
+  vcl_ocean  = "node src/main.js"
+  vcl_neural = "node src/main.js"
+  vcl_void   = "node src/main.js"
+  vcl_prime  = "node src/main.js"
+
 [[vm]]
   memory = "1gb"
   cpu_kind = "shared"
   cpus = 1
+
+[http_service]
+  auto_stop_machines  = "off"
+  auto_start_machines = true
+  min_machines_running = 0
+  internal_port = 8080
+  force_https = false
