@@ -1,5 +1,5 @@
 // EVEZ VCL Renderer — node-canvas 2D, all 5 VCL physics engines
-import { createCanvas } from 'canvas';
+import { createCanvas } from '@napi-rs/canvas';
 
 export const W = 1920, H = 1080;
 
