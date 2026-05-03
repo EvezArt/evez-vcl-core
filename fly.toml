@@ -1,19 +1,14 @@
 app = "evez-vcl-core"
 primary_region = "iad"
-kill_signal = "SIGTERM"
-kill_timeout = "5s"
 
 [build]
   dockerfile = "Dockerfile"
 
 [env]
   NODE_ENV = "production"
-  VCL_ID = "fire"
+  VCL_ID   = "fire"
 
 [[vm]]
-  memory = "1gb"
+  memory   = "2gb"
   cpu_kind = "shared"
-  cpus = 1
-
-[restart]
-  policy = "always"
+  cpus     = 2
