@@ -1,14 +1,11 @@
 {
   "name": "evez-vcl-core",
-  "version": "1.0.0",
-  "description": "EVEZ VCL Core — 5 reactive sensory 24/7 live VCLs",
+  "version": "2.0.0",
+  "description": "EVEZ VCL — pure FFmpeg generative math, no native deps",
   "main": "src/main.js",
   "type": "module",
-  "scripts": {
-    "start": "node src/main.js"
-  },
+  "scripts": { "start": "node src/main.js" },
   "dependencies": {
-    "@napi-rs/canvas": "^0.1.55",
     "@supabase/supabase-js": "^2.45.0",
     "node-fetch": "^3.3.2"
   }
