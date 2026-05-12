@@ -18,7 +18,7 @@ jobs:
       matrix:
         vcl: [fire, ocean, neural, void, prime]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Deploy evez-vcl-${{ matrix.vcl }}
         if: >
