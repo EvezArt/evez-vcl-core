@@ -27,7 +27,7 @@ jobs:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
           APP="evez-vcl-${{ matrix.vcl }}"
-          flyctl apps create $APP --org evez 2>/dev/null || true
+          flyctl apps create "$APP" --org evez 2>/dev/null || true
           flyctl secrets set \
             VCL_ID=${{ matrix.vcl }} \
             SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
@@ -39,6 +39,8 @@ jobs:
             STREAM_KEY_NEURAL=${{ secrets.STREAM_KEY_NEURAL }} \
             STREAM_KEY_VOID=${{ secrets.STREAM_KEY_VOID }} \
             STREAM_KEY_PRIME=${{ secrets.STREAM_KEY_PRIME }} \
-            --app $APP
-          sed "s/evez-vcl-fire/$APP/" fly.toml > fly-${{ matrix.vcl }}.toml
-          flyctl deploy --remote-only --config fly-${{ matrix.vcl }}.toml
+            --app "$APP"
+          CONFIG="fly-${{ matrix.vcl }}.toml"
+          sed -E "s/^app = \".*\"$/app = \"$APP\"/" fly.toml > "$CONFIG"
+          grep -Fx "app = \"$APP\"" "$CONFIG"
+          flyctl deploy --remote-only --config "$CONFIG"
