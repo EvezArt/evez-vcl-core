@@ -1,35 +1,34 @@
-name: Keepalive
+name: Workflow State Audit
 
 on:
-  schedule:
-    - cron: '0 */6 * * *'
   workflow_dispatch:
-  push:
-    branches: [main]
+
+permissions:
+  actions: read
+  contents: read
 
 jobs:
-  keepalive:
+  audit:
+    name: Report workflow states without changing them
     runs-on: ubuntu-latest
-    permissions:
-      actions: write
-      contents: write
     steps:
-      - name: Re-enable all workflows
+      - name: List inactive workflows
         uses: actions/github-script@v7
         with:
           script: |
-            const wfs = await github.rest.actions.listRepoWorkflows({
-              owner: context.repo.owner, repo: context.repo.repo
-            });
-            let reEnabled = 0;
-            for (const wf of wfs.data.workflows) {
-              if (wf.state !== 'active') {
-                await github.rest.actions.enableWorkflow({
-                  owner: context.repo.owner, repo: context.repo.repo,
-                  workflow_id: wf.id
-                });
-                reEnabled++;
-                console.log('Re-enabled:', wf.name);
-              }
+            const workflows = await github.paginate(
+              github.rest.actions.listRepoWorkflows,
+              { owner: context.repo.owner, repo: context.repo.repo, per_page: 100 }
+            );
+            const inactive = workflows.filter((workflow) => workflow.state !== "active");
+            core.summary.addHeading("Workflow state audit");
+            core.summary.addRaw("Total workflows: " + workflows.length + "\n\n");
+            core.summary.addRaw("Inactive workflows: " + inactive.length + "\n\n");
+            if (inactive.length > 0) {
+              core.summary.addTable([
+                [{ data: "Workflow", header: true }, { data: "State", header: true }, { data: "ID", header: true }],
+                ...inactive.map((workflow) => [workflow.name, workflow.state, String(workflow.id)])
+              ]);
             }
-            console.log(`Keepalive done. Re-enabled ${reEnabled}/${wfs.data.total_count}. ${new Date().toISOString()}`);
+            core.summary.addRaw("Read-only report. This workflow never enables, disables, or dispatches workflows.\n");
+            await core.summary.write();
