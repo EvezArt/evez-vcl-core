@@ -1,8 +1,7 @@
 name: Deploy VCL Instances
 
+# Automatic push deployments are paused; use manual dispatch after review.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
       vcl:
@@ -23,8 +22,7 @@ jobs:
       - name: Deploy evez-vcl-${{ matrix.vcl }}
         if: >
           github.event.inputs.vcl == matrix.vcl ||
-          github.event.inputs.vcl == 'all' ||
-          github.event_name == 'push'
+          github.event.inputs.vcl == 'all'
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
