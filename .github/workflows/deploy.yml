@@ -6,6 +6,14 @@ on:
     inputs:
       vcl:
         description: "VCL to deploy (fire|ocean|neural|void|prime|all)"
+        type: choice
+        options:
+          - fire
+          - ocean
+          - neural
+          - void
+          - prime
+          - all
         default: "all"
         required: true
 
@@ -15,7 +23,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        vcl: [fire, ocean, neural, void, prime]
+        include:
+          - vcl: fire
+            stream_secret: STREAM_KEY_FIRE
+          - vcl: ocean
+            stream_secret: STREAM_KEY_OCEAN
+          - vcl: neural
+            stream_secret: STREAM_KEY_NEURAL
+          - vcl: void
+            stream_secret: STREAM_KEY_VOID
+          - vcl: prime
+            stream_secret: STREAM_KEY_PRIME
     steps:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
@@ -25,20 +43,26 @@ jobs:
           github.event.inputs.vcl == 'all'
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          YOUTUBE_TOKEN: ${{ secrets.YOUTUBE_TOKEN }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          STREAM_KEY: ${{ secrets[matrix.stream_secret] }}
         run: |
           APP="evez-vcl-${{ matrix.vcl }}"
+          STREAM_KEY_NAME="${{ matrix.stream_secret }}"
+          if [ -z "$STREAM_KEY" ]; then
+            echo "Missing required stream secret: $STREAM_KEY_NAME" >&2
+            exit 1
+          fi
           flyctl apps create "$APP" --org evez 2>/dev/null || true
           flyctl secrets set \
-            VCL_ID=${{ matrix.vcl }} \
-            SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
-            SUPABASE_SERVICE_KEY=${{ secrets.SUPABASE_SERVICE_KEY }} \
-            YOUTUBE_TOKEN=${{ secrets.YOUTUBE_TOKEN }} \
-            GROQ_API_KEY=${{ secrets.GROQ_API_KEY }} \
-            STREAM_KEY_FIRE=${{ secrets.STREAM_KEY_FIRE }} \
-            STREAM_KEY_OCEAN=${{ secrets.STREAM_KEY_OCEAN }} \
-            STREAM_KEY_NEURAL=${{ secrets.STREAM_KEY_NEURAL }} \
-            STREAM_KEY_VOID=${{ secrets.STREAM_KEY_VOID }} \
-            STREAM_KEY_PRIME=${{ secrets.STREAM_KEY_PRIME }} \
+            VCL_ID="${{ matrix.vcl }}" \
+            SUPABASE_URL="$SUPABASE_URL" \
+            SUPABASE_SERVICE_KEY="$SUPABASE_SERVICE_KEY" \
+            YOUTUBE_TOKEN="$YOUTUBE_TOKEN" \
+            GROQ_API_KEY="$GROQ_API_KEY" \
+            "$STREAM_KEY_NAME=$STREAM_KEY" \
             --app "$APP"
           CONFIG="fly-${{ matrix.vcl }}.toml"
           sed -E "s/^app = \".*\"$/app = \"$APP\"/" fly.toml > "$CONFIG"
